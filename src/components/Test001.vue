@@ -1,12 +1,55 @@
 <template>
   <div>
     <div>Test001</div>
+
+    <br />
+
+    <div v-if="!isLoggedIn">
+      <div style="font-weight: 600;">회원가입</div>
+      <div>이메일 <input v-model="createUserEmail"></div>
+      <div>비밀번호 <input v-model="createUserPassword" type="password"></div>
+      <div><button @click="createFirebaseUser(createUserEmail, createUserPassword)">회원가입</button></div>
+      <br />
+    </div>
+
+    <div v-if="!isLoggedIn">
+      <div style="font-weight: 600;">로그인</div>
+      <div>이메일 <input v-model="loginUserEmail"></div>
+      <div>비밀번호 <input v-model="loginUserPassword" type="password"></div>
+      <div><button @click="loginFirebase(loginUserEmail, loginUserPassword)">로그인</button></div>
+      <br />
+    </div>
+
+    <div v-if="isLoggedIn">
+      <div>{{ this.currentUser?.email }}</div>
+      <div><button @click="logoutFirebase">로그아웃</button></div>
+      <br />
+    </div>
+    
+    <div>
+      <div>isLoggedIn : {{ isLoggedIn }}</div>
+      <br />
+    </div>
+
+    <!-- <div>
+      <div><button @click="testButton">testButton</button></div>
+      <br />
+    </div> -->
+
+    <div>
+      <div>user01@naver.com / cldstn302</div>
+      <div>user02@naver.com / 123qwe</div>
+      <div>user03@naver.com / 123qwe</div>
+      <div>user04@naver.com / 123qwe</div>
+    </div>
+    
   </div>
 </template>
 
 <script>
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, query, where, onSnapshot } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBuNui09yAQg89IZ903mgYSBesGMHRcq_c",
@@ -41,7 +84,18 @@ export default {
   name: 'Test001',
   data() {
     return {
-      unsubscribe: null
+      unsubscribe: null,
+
+      createUserEmail: "",
+      createUserPassword: "",
+
+      isLoggedIn: false,
+
+      loginUserEmail: "",
+      loginUserPassword: "",
+      
+      currentUser: null,
+
     }
   },
   created() {
@@ -49,6 +103,8 @@ export default {
   },
   mounted() {
     // this.openFirestoreCollection("test001")
+    // console.log(getAuth())
+    this.checkIsLoggedIn()
   },
   methods: {
     openFirestoreCollection(collectionName) {
@@ -60,6 +116,69 @@ export default {
         })
         console.log(arr)
       })
+    },
+    createFirebaseUser(email, password) {
+      if (this.isLoggedIn) {
+        return
+      }
+      const auth = getAuth()
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          this.createUserEmail = ""
+          this.createUserPassword = ""
+          this.currentUser = userCredential.user
+          this.isLoggedIn = true
+        })
+        .catch((error) => {
+          this.createUserEmail = ""
+          this.createUserPassword = ""
+          this.currentUser = null
+          this.isLoggedIn = false
+          console.log(error.code, error.message)
+        })
+    },
+    loginFirebase(email, password) {
+      if (this.isLoggedIn) {
+        return
+      }
+      const auth = getAuth()
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          this.loginUserEmail = ""
+          this.loginUserPassword = ""
+          this.currentUser = userCredential.user
+          this.isLoggedIn = true
+        })
+        .catch((error) => {
+          this.loginUserEmail = ""
+          this.loginUserPassword = ""
+          this.currentUser = null
+          this.isLoggedIn = false
+          console.log(error.code, error.message)
+        })
+    },
+    logoutFirebase() {
+      if (!this.isLoggedIn) {
+        return
+      }
+      const auth = getAuth()
+      signOut(auth).then(() => {
+        this.isLoggedIn = false
+      }).catch((error) => {
+        console.log(error)
+      })
+    },
+    // testButton() {
+    //   const auth = getAuth()
+    //   console.log(auth.currentUser)
+    // }
+    checkIsLoggedIn() {
+      const auth = getAuth()
+      if (auth.currentUser) {
+        this.isLoggedIn = true
+      } else {
+        this.isLoggedIn = false
+      }
     }
   }
 }
