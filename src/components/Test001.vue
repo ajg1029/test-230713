@@ -41,6 +41,16 @@
       <div>user02@naver.com / 123qwe</div>
       <div>user03@naver.com / 123qwe</div>
       <div>user04@naver.com / 123qwe</div>
+      <br />
+    </div>
+
+    <div>
+      <button @click="openFirestoreCollection('test001')">openFirestoreCollection</button>
+      <br />
+    </div>
+
+    <div>
+      <button @click="closeFirestoreCollection">closeFirestoreCollection</button>
     </div>
     
   </div>
@@ -116,6 +126,9 @@ export default {
         })
         console.log(arr)
       })
+    },
+    closeFirestoreCollection() {
+      this.unsubscribe()
     },
     createFirebaseUser(email, password) {
       if (this.isLoggedIn) {
