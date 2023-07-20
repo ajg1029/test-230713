@@ -45,12 +45,21 @@
     </div>
 
     <div>
-      <button @click="openFirestoreCollection('test001')">openFirestoreCollection</button>
+      <div><button @click="openFirestoreCollection('test001')">openFirestoreCollection</button></div>
       <br />
     </div>
 
     <div>
-      <button @click="closeFirestoreCollection">closeFirestoreCollection</button>
+      <div><button @click="closeFirestoreCollection">closeFirestoreCollection</button></div>
+      <br />
+    </div>
+
+    <div>
+      <div>inputDocId <input v-model="inputDocId"></div>
+      <div>inputDocDataName <input v-model="inputDocDataName"></div>
+      <div>inputDocDataNum <input v-model="inputDocDataNum"></div>
+      <div><button @click="addFirestoreDoc">addFirestoreDoc</button></div>
+      <br />
     </div>
     
   </div>
@@ -58,7 +67,7 @@
 
 <script>
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, query, where, onSnapshot } from "firebase/firestore";
+import { getFirestore, collection, query, where, onSnapshot, doc, setDoc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 const firebaseConfig = {
@@ -106,10 +115,11 @@ export default {
       
       currentUser: null,
 
+      inputDocId: "",
+      inputDocDataName: "",
+      inputDocDataNum: "",
+
     }
-  },
-  created() {
-    
   },
   mounted() {
     // this.openFirestoreCollection("test001")
@@ -129,6 +139,15 @@ export default {
     },
     closeFirestoreCollection() {
       this.unsubscribe()
+    },
+    async addFirestoreDoc() {
+      await setDoc(doc(firestoreDB, "test001", this.inputDocId), {
+        name: this.inputDocDataName,
+        num: parseInt(this.inputDocDataNum),
+      })
+      this.inputDocId = ""
+      this.inputDocDataName = ""
+      this.inputDocDataNum = ""
     },
     createFirebaseUser(email, password) {
       if (this.isLoggedIn) {
